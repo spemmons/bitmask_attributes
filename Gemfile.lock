@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bitmask_attributes (0.2.4)
+    bitmask_attributes (0.2.5)
       activerecord (~> 3.0)
 
 GEM
