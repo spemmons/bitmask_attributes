@@ -1,3 +1,58 @@
+=== Version 0.4.0 - 2012-12-14 19:37:49 +0000
+
+Adrian Gomez (1):
+* Fixing issue #22
+
+Brad Dunbar (1):
+* Add default option.
+
+Dominik Bamberger (5):
+* Introduce raw bitmask setter.
+* Ensure unsupported values for raw bitmasks raise an exception
+* First reset instance variable then write attribute.
+* Introduce inverse convenience class method
+* Allow only valid entries when setting raw bitmask values directly
+
+François DELFORT (2):
+* Handle single table inheritance
+
+Tee Parham (2):
+* add table name scope to or_is_null_condition
+
+alexanderd (1):
+* Include table name in scope definitions
+
+
+=== Version 0.3.0 - 2012-04-30 21:36:18 +0100
+
+Aaron Hamid (1):
+* wrap two scopes in procs to fix migration/startup issues
+
+Andre Duffeck (1):
+* fix values_for
+
+Ivan Buiko (1):
+* Adding retrieval by exact value
+
+Sebastian Borrazas (1):
+* Not raising exception when the bitmask column is not found, since its adding it on a migration
+
+spemmons (22):
+* detect whether or not nulls are possible with an attribute and remove OR conditions checking if it is null or not
+* check for model not being ready when creating scopes
+* support nulls with an explicit attribute, not by inspecting the model due to preloading issues
+* support multiple values in the "without_..." scope that excludes match for of any of the bits; previously 2nd and following values were ignored
+* DRY-up scope expressions, standardizing on "no_" and "bitmask_for_...(*values)" instead of repeating more complex calculations; also found another example of zykadelic's complaint with "with_any_" that is fixed and has tests
+* add travis configuration file
+* add :zero_value option and tests
+* rename :zero to :zero_value for clarity
+
+steve emmons (3):
+* Merge pull request #1 from numerex/master
+* Merge pull request #2 from numerex/master
+* Merge pull request #15 from spemmons/master
+
+
 === Version 0.2.4 - 2011-11-23 09:37:50 +0000
 
 Ivan Buiko (3):
@@ -6,6 +61,8 @@ Ivan Buiko (3):
 Joel Moss (3):
 * Added changeling tasks for help with gem releases
 * Created docs using sdoc
+
+
 
 
 

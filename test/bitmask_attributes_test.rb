@@ -2,7 +2,7 @@ require 'test_helper'
 
 class BitmaskAttributesTest < ActiveSupport::TestCase
 
-  def self.context_with_classes(label,campaign_class,company_class)
+  def self.context_with_classes(label, campaign_class, company_class)
     context label do
       setup do
         @campaign_class = campaign_class
@@ -53,6 +53,14 @@ class BitmaskAttributesTest < ActiveSupport::TestCase
         assert_stored campaign, :phone, :email
       end
 
+      should "can assign raw bitmask values" do
+        campaign = @campaign_class.new
+        campaign.medium_bitmask = 3
+        assert_stored campaign, :web, :print
+        campaign.medium_bitmask = 0
+        assert_empty campaign.medium
+      end
+
       should "can save bitmask to db and retrieve values transparently" do
         campaign = @campaign_class.new(:medium => [:web, :print])
         assert_stored campaign, :web, :print
@@ -78,6 +86,18 @@ class BitmaskAttributesTest < ActiveSupport::TestCase
         assert_unsupported { campaign.medium = [:so_will_this] }
       end
 
+      should "can only use Fixnum values for raw bitmask values" do
+        campaign = @campaign_class.new(:medium => :web)
+        assert_unsupported { campaign.medium_bitmask = :this_will_fail }
+      end
+
+      should "cannot use unsupported values for raw bitmask values" do
+        campaign = @campaign_class.new(:medium => :web)
+        number_of_attributes = @campaign_class.bitmasks[:medium].size
+        assert_unsupported { campaign.medium_bitmask = (2 ** number_of_attributes) }
+        assert_unsupported { campaign.medium_bitmask = -1 }
+      end
+
       should "can determine bitmasks using convenience method" do
         assert @campaign_class.bitmask_for_medium(:web, :print)
         assert_equal(
@@ -88,6 +108,15 @@ class BitmaskAttributesTest < ActiveSupport::TestCase
 
       should "assert use of unknown value in convenience method will result in exception" do
         assert_unsupported { @campaign_class.bitmask_for_medium(:web, :and_this_isnt_valid)  }
+      end
+
+      should "can determine bitmask entries using inverse convenience method" do
+        assert @campaign_class.medium_for_bitmask(3)
+        assert_equal([:web, :print], @campaign_class.medium_for_bitmask(3))
+      end
+
+      should "assert use of non Fixnum value in inverse convenience method will result in exception" do
+        assert_unsupported { @campaign_class.medium_for_bitmask(:this_isnt_valid)  }
       end
 
       should "hash of values is with indifferent access" do
@@ -174,7 +203,7 @@ class BitmaskAttributesTest < ActiveSupport::TestCase
           assert_equal [@campaign2, @campaign7], @company.campaigns.without_medium(:web, :print)
           assert_equal [@campaign2, @campaign3, @campaign4], @company.campaigns.without_medium(:print, :phone)
         end
-        
+
         should "support retrieval by exact value" do
           assert_equal [@campaign4], @company.campaigns.with_exact_medium(:web)
           assert_equal [@campaign1], @company.campaigns.with_exact_medium(:web, :print)
@@ -270,6 +299,25 @@ class BitmaskAttributesTest < ActiveSupport::TestCase
     end
   end
 
-  context_with_classes 'Campaign with null attributes',CampaignWithNull,CompanyWithNull
-  context_with_classes 'Campaign without null attributes',CampaignWithoutNull,CompanyWithoutNull
+  should "accept a default value option" do
+    assert_equal DefaultValue.new.default_sym, [:y]
+    assert_equal DefaultValue.new.default_array, [:y, :z]
+    assert_equal DefaultValue.new(:default_sym => :x).default_sym, [:x]
+    assert_equal DefaultValue.new(:default_array => [:x]).default_array, [:x]
+  end
+  
+  should "save empty bitmask when default defined" do
+    default = DefaultValue.create
+    assert_equal [:y], default.default_sym
+    default.default_sym = []
+    default.save
+    assert_empty default.default_sym
+    default2 = DefaultValue.find(default.id)
+    assert_empty default2.default_sym
+  end
+
+  context_with_classes 'Campaign with null attributes', CampaignWithNull, CompanyWithNull
+  context_with_classes 'Campaign without null attributes', CampaignWithoutNull, CompanyWithoutNull
+  context_with_classes 'SubCampaign with null attributes', SubCampaignWithNull, CompanyWithNull
+  context_with_classes 'SubCampaign without null attributes', SubCampaignWithoutNull, CompanyWithoutNull
 end
