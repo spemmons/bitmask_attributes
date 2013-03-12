@@ -1,7 +1,8 @@
-ActiveRecord::Schema.define do 
+ActiveRecord::Schema.define do
   create_table :campaign_with_nulls do |t|
     t.integer :company_id
     t.integer :medium, :allow_zero, :misc, :Legacy
+    t.string :type # STI
   end
   create_table :company_with_nulls do |t|
     t.string :name
@@ -9,9 +10,13 @@ ActiveRecord::Schema.define do
   create_table :campaign_without_nulls do |t|
     t.integer :company_id
     t.integer :medium, :allow_zero, :misc, :Legacy, :null => false, :default => 0
+    t.string :type # STI
   end
   create_table :company_without_nulls do |t|
     t.string :name
+  end
+  create_table :default_values do |t|
+    t.integer :default_sym, :default_array
   end
 end
 
@@ -33,6 +38,9 @@ class CampaignWithNull < ActiveRecord::Base
   bitmask :Legacy, :as => [:upper, :case]
 end
 
+class SubCampaignWithNull < CampaignWithNull
+end
+
 class CompanyWithoutNull < ActiveRecord::Base
   has_many :campaigns,:class_name => 'CampaignWithoutNull',:foreign_key => 'company_id'
 end
@@ -47,4 +55,12 @@ class CampaignWithoutNull < ActiveRecord::Base
     end
   end
   bitmask :Legacy, :as => [:upper, :case], :null => false
+end
+
+class SubCampaignWithoutNull < CampaignWithNull
+end
+
+class DefaultValue < ActiveRecord::Base
+  bitmask :default_sym, :as => [:x, :y, :z], :default => :y
+  bitmask :default_array, :as => [:x, :y, :z], :default => [:y, :z]
 end
