@@ -1,7 +1,6 @@
 source "https://rubygems.org"
 
 gemspec
-
 gem 'sdoc'
 gem 'rake'
 gem 'shoulda'
