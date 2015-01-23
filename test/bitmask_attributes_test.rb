@@ -291,24 +291,6 @@ class BitmaskAttributesTest < ActiveSupport::TestCase
         assert campaign.save
         assert_equal [:one],campaign.allow_zero
       end
-
-
-      private
-
-        def assert_unsupported(&block)
-          assert_raises(ArgumentError, &block)
-        end
-
-        def assert_stored(record, *values)
-          values.each do |value|
-            assert record.medium.any? { |v| v.to_s == value.to_s }, "Values #{record.medium.inspect} does not include #{value.inspect}"
-          end
-          full_mask = values.inject(0) do |mask, value|
-            mask | @campaign_class.bitmasks[:medium][value]
-          end
-          assert_equal full_mask, record.medium.to_i
-        end
-
     end
   end
 
@@ -346,5 +328,18 @@ class BitmaskAttributesTest < ActiveSupport::TestCase
     assert_equal a.different_per_class, [:set_for_parent]
     assert_equal b.different_per_class, [:set_for_sub]
   end
-  
+
+  def assert_unsupported(&block)
+    assert_raises(ArgumentError, &block)
+  end
+
+  def assert_stored(record, *values)
+    values.each do |value|
+      assert record.medium.any? { |v| v.to_s == value.to_s }, "Values #{record.medium.inspect} does not include #{value.inspect}"
+    end
+    full_mask = values.inject(0) do |mask, value|
+      mask | @campaign_class.bitmasks[:medium][value]
+    end
+    assert_equal full_mask, record.medium.to_i
+  end
 end
