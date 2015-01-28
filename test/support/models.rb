@@ -1,3 +1,5 @@
+require 'logger'
+
 ActiveRecord::Schema.define do
   create_table :campaign_with_nulls do |t|
     t.integer :company_id
@@ -42,6 +44,7 @@ class CampaignWithNull < ActiveRecord::Base
 end
 
 class SubCampaignWithNull < CampaignWithNull
+  self.logger ||= Logger.new("/dev/null")
   bitmask :different_per_class, :as => [:set_for_sub]
 end
 

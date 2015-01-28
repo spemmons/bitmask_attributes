@@ -145,8 +145,6 @@ module BitmaskAttributes
         or_is_null_condition = " OR #{model.table_name}.#{attribute} IS NULL" if allow_null
 
         model.class_eval %(
-          require 'logger'
-          self.logger ||= Logger.new('/dev/null')
           scope :with_#{attribute},
             proc { |*values|
               if values.blank?
