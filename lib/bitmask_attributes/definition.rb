@@ -146,7 +146,7 @@ module BitmaskAttributes
 
         model.class_eval %(
           require 'logger'
-          self.logger ||= Logger.new(STDOUT)
+          self.logger ||= Logger.new('/dev/null')
           scope :with_#{attribute},
             proc { |*values|
               if values.blank?
