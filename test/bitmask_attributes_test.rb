@@ -273,7 +273,7 @@ class BitmaskAttributesTest < ActiveSupport::TestCase
         assert campaign.save
 
         assert_equal(
-          @campaign_class.find(:all, :conditions => ['medium & ? <> 0', @campaign_class.bitmask_for_medium(:print)]),
+          @campaign_class.where('medium & ? <> 0', @campaign_class.bitmask_for_medium(:print)).to_a,
           @campaign_class.medium_for_print
         )
 
@@ -311,24 +311,6 @@ class BitmaskAttributesTest < ActiveSupport::TestCase
         assert campaign.save
         assert_equal [:one],campaign.allow_zero
       end
-
-
-      private
-
-        def assert_unsupported(&block)
-          assert_raises(ArgumentError, &block)
-        end
-
-        def assert_stored(record, *values)
-          values.each do |value|
-            assert record.medium.any? { |v| v.to_s == value.to_s }, "Values #{record.medium.inspect} does not include #{value.inspect}"
-          end
-          full_mask = values.inject(0) do |mask, value|
-            mask | @campaign_class.bitmasks[:medium][value]
-          end
-          assert_equal full_mask, record.medium.to_i
-        end
-
     end
   end
 
@@ -353,4 +335,31 @@ class BitmaskAttributesTest < ActiveSupport::TestCase
   context_with_classes 'Campaign without null attributes', CampaignWithoutNull, CompanyWithoutNull
   context_with_classes 'SubCampaign with null attributes', SubCampaignWithNull, CompanyWithNull
   context_with_classes 'SubCampaign without null attributes', SubCampaignWithoutNull, CompanyWithoutNull
+  
+  should "allow subclasses to have different values for bitmask than parent" do
+    a = CampaignWithNull.new
+    b = SubCampaignWithNull.new
+    a.different_per_class = [:set_for_parent]
+    b.different_per_class = [:set_for_sub]
+    a.save!
+    b.save!
+    a.reload
+    b.reload
+    assert_equal a.different_per_class, [:set_for_parent]
+    assert_equal b.different_per_class, [:set_for_sub]
+  end
+
+  def assert_unsupported(&block)
+    assert_raises(ArgumentError, &block)
+  end
+
+  def assert_stored(record, *values)
+    values.each do |value|
+      assert record.medium.any? { |v| v.to_s == value.to_s }, "Values #{record.medium.inspect} does not include #{value.inspect}"
+    end
+    full_mask = values.inject(0) do |mask, value|
+      mask | @campaign_class.bitmasks[:medium][value]
+    end
+    assert_equal full_mask, record.medium.to_i
+  end
 end
