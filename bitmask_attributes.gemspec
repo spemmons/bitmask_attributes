@@ -15,5 +15,5 @@ Gem::Specification.new do |gem|
   gem.version       = BitmaskAttributes::VERSION.dup
 
   gem.add_dependency 'activerecord', '>= 3.1'
-  gem.add_development_dependency "appraisal",     "~> 0.5.1"
+  gem.add_development_dependency "appraisal"
 end
