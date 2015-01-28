@@ -11,3 +11,5 @@ pkg
 *.gem
 /nbproject
 .idea/
+
+Gemfile.lock
