@@ -2,7 +2,6 @@
 
 source "https://rubygems.org"
 
-gem "minitest"
 gem "sdoc"
 gem "rake"
 gem "shoulda"
